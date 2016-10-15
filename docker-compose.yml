@@ -1,0 +1,29 @@
+version: '2'
+services:
+    mongo:
+      image: mongo
+      ports:
+        - "27017:27017"
+      networks:
+        - internal
+    nginx-proxy:
+      image: jwilder/nginx-proxy
+      container_name: nginx-proxy
+      ports:
+        - "80:80"
+      volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+      networks:
+        - internal
+    userservice:
+        build: user-service/.
+        environment:
+          - VIRTUAL_HOST=user.service.com
+          - VIRTUAL_PORT=8080
+        depends_on:
+          - mongo
+        networks:
+          - internal
+networks:
+    internal:
+        driver: bridge
